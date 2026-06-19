@@ -5,35 +5,22 @@ import { Container } from "@/components/ui/Container";
 import { WhatsAppIcon } from "@/components/ui/WhatsAppIcon";
 import { generateWhatsAppCSURL } from "@/lib/whatsapp";
 
-export function Hero() {
+export function Hero({
+  waNumber,
+  tagline,
+}: {
+  waNumber: string;
+  tagline?: string;
+}) {
   return (
     <section className="relative overflow-hidden">
-      {/* decorative bg */}
       <div className="absolute inset-0 -z-10">
         <div className="absolute inset-0 bg-gradient-to-br from-brand-cream via-brand-bg to-brand-secondary/15" />
-        <svg
-          className="absolute -top-20 -right-20 w-[420px] h-[420px] opacity-25"
-          viewBox="0 0 400 400"
-          fill="none"
-          aria-hidden
-        >
-          <path
-            d="M200 50 Q260 100 280 180 Q260 280 200 320 Q140 280 120 180 Q140 100 200 50 Z"
-            stroke="#2D6A4F"
-            strokeWidth="1.2"
-          />
-          <path
-            d="M200 60 L200 320 M120 180 L280 180"
-            stroke="#74C69D"
-            strokeWidth="0.8"
-          />
+        <svg className="absolute -top-20 -right-20 w-[420px] h-[420px] opacity-25" viewBox="0 0 400 400" fill="none" aria-hidden>
+          <path d="M200 50 Q260 100 280 180 Q260 280 200 320 Q140 280 120 180 Q140 100 200 50 Z" stroke="#2D6A4F" strokeWidth="1.2" />
+          <path d="M200 60 L200 320 M120 180 L280 180" stroke="#74C69D" strokeWidth="0.8" />
         </svg>
-        <svg
-          className="absolute -bottom-24 -left-20 w-[360px] h-[360px] opacity-20"
-          viewBox="0 0 360 360"
-          fill="none"
-          aria-hidden
-        >
+        <svg className="absolute -bottom-24 -left-20 w-[360px] h-[360px] opacity-20" viewBox="0 0 360 360" fill="none" aria-hidden>
           <circle cx="180" cy="180" r="160" stroke="#C9973A" strokeWidth="1" />
           <circle cx="180" cy="180" r="110" stroke="#2D6A4F" strokeWidth="1" />
           <circle cx="180" cy="180" r="60" stroke="#74C69D" strokeWidth="1" />
@@ -48,9 +35,17 @@ export function Hero() {
               100% Bahan Alami & Bersertifikasi
             </span>
             <h1 className="mt-6 font-display text-5xl sm:text-6xl lg:text-7xl text-brand-primary font-light leading-[1.05] tracking-tight">
-              Kebaikan Alam,
-              <br />
-              <span className="text-brand-primary-light">Kesehatan Sejati.</span>
+              {tagline ? tagline.split(",").map((part, i, arr) => (
+                <span key={i} className={i === arr.length - 1 ? "text-brand-primary-light block" : ""}>
+                  {part.trim()}{i < arr.length - 1 ? "," : ""}{i < arr.length - 1 ? <br /> : null}
+                </span>
+              )) : (
+                <>
+                  Kebaikan Alam,
+                  <br />
+                  <span className="text-brand-primary-light">Kesehatan Sejati.</span>
+                </>
+              )}
             </h1>
             <p className="mt-6 max-w-xl text-base sm:text-lg text-brand-text-secondary leading-relaxed">
               Produk herbal alami pilihan Albaiks — diolah dari bahan terbaik
@@ -65,11 +60,7 @@ export function Hero() {
                 </Link>
               </Button>
               <Button asChild size="lg" variant="whatsapp">
-                <a
-                  href={generateWhatsAppCSURL()}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                >
+                <a href={generateWhatsAppCSURL(waNumber)} target="_blank" rel="noopener noreferrer">
                   <WhatsAppIcon className="h-4 w-4" />
                   Hubungi Kami
                 </a>
@@ -87,11 +78,7 @@ export function Hero() {
             <div className="relative aspect-[4/5] max-w-md mx-auto">
               <div className="absolute inset-0 rounded-[16px] bg-gradient-to-br from-white via-brand-cream to-brand-secondary/25 shadow-2xl shadow-brand-primary/10 border border-white" />
               <div className="absolute inset-4 rounded-[12px] bg-white/70 backdrop-blur border border-brand-border overflow-hidden">
-                <svg
-                  viewBox="0 0 320 400"
-                  className="w-full h-full"
-                  aria-hidden
-                >
+                <svg viewBox="0 0 320 400" className="w-full h-full" aria-hidden>
                   <defs>
                     <linearGradient id="g1" x1="0" y1="0" x2="1" y2="1">
                       <stop offset="0" stopColor="#F4F0E8" />
@@ -99,7 +86,6 @@ export function Hero() {
                     </linearGradient>
                   </defs>
                   <rect width="320" height="400" fill="url(#g1)" />
-                  {/* three bottles */}
                   <g transform="translate(40 60)">
                     <rect x="10" y="40" width="60" height="140" rx="8" fill="#fff" stroke="#2D6A4F" />
                     <rect x="22" y="20" width="36" height="22" fill="#1A3C34" />
@@ -121,7 +107,6 @@ export function Hero() {
                     <text x="35" y="98" textAnchor="middle" fontFamily="serif" fontSize="9" fill="#1A3C34" fontWeight="500">ALBAIKS</text>
                     <text x="35" y="112" textAnchor="middle" fontFamily="serif" fontSize="6" fill="#C9973A" letterSpacing="1.5">JAHE</text>
                   </g>
-                  {/* leaves */}
                   <g stroke="#2D6A4F" strokeWidth="1.2" fill="none" opacity="0.7">
                     <path d="M30 300 Q60 280 80 300 M50 305 L60 295" />
                     <path d="M250 320 Q280 305 295 320 M270 322 L280 312" />
@@ -160,9 +145,7 @@ function Stat({ label, value }: { label: string; value: string }) {
   return (
     <div>
       <dt className="text-xs uppercase tracking-wider text-brand-text-muted">{label}</dt>
-      <dd className="mt-1 font-display text-3xl font-medium text-brand-primary">
-        {value}
-      </dd>
+      <dd className="mt-1 font-display text-3xl font-medium text-brand-primary">{value}</dd>
     </div>
   );
 }

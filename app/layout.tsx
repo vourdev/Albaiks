@@ -1,9 +1,8 @@
 import type { Metadata } from "next";
 import { Cormorant_Garamond, DM_Sans } from "next/font/google";
 import "./globals.css";
-import { Navbar } from "@/components/layout/Navbar";
-import { Footer } from "@/components/layout/Footer";
-import { WhatsAppFloat } from "@/components/layout/WhatsAppFloat";
+import { getSiteSettings } from "@/lib/settings";
+import { SITE_URL } from "@/lib/config";
 
 const cormorant = Cormorant_Garamond({
   variable: "--font-cormorant",
@@ -19,32 +18,25 @@ const dmSans = DM_Sans({
   display: "swap",
 });
 
-export const metadata: Metadata = {
-  metadataBase: new URL("https://albaiks.id"),
-  title: {
-    default: "Albaiks Herbal — Kebaikan Alam, Kesehatan Sejati",
-    template: "%s — Albaiks Herbal",
-  },
-  description:
-    "Produk herbal alami pilihan Albaiks: minyak zaitun extra virgin, virgin coconut oil, dan serbuk jahe merah. Pesan langsung via WhatsApp.",
-  keywords: [
-    "minyak zaitun",
-    "VCO",
-    "virgin coconut oil",
-    "serbuk jahe merah",
-    "herbal alami",
-    "Albaiks",
-  ],
-  openGraph: {
-    title: "Albaiks Herbal — Kebaikan Alam, Kesehatan Sejati",
-    description:
-      "Produk herbal alami premium. Pesan mudah via WhatsApp.",
-    type: "website",
-    locale: "id_ID",
-    siteName: "Albaiks Herbal",
-  },
-  twitter: { card: "summary_large_image" },
-};
+export async function generateMetadata(): Promise<Metadata> {
+  const settings = await getSiteSettings();
+  return {
+    metadataBase: new URL(SITE_URL),
+    title: {
+      default: `${settings.siteName} — ${settings.tagline}`,
+      template: `%s — ${settings.siteName}`,
+    },
+    description: settings.description,
+    openGraph: {
+      title: `${settings.siteName} — ${settings.tagline}`,
+      description: settings.description,
+      type: "website",
+      locale: "id_ID",
+      siteName: settings.siteName,
+    },
+    twitter: { card: "summary_large_image" },
+  };
+}
 
 export default function RootLayout({
   children,
@@ -55,10 +47,7 @@ export default function RootLayout({
       className={`${cormorant.variable} ${dmSans.variable} h-full antialiased`}
     >
       <body className="min-h-full flex flex-col bg-brand-bg text-brand-text">
-        <Navbar />
-        <main className="flex-1">{children}</main>
-        <Footer />
-        <WhatsAppFloat />
+        {children}
       </body>
     </html>
   );

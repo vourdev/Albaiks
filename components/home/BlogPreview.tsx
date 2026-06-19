@@ -2,11 +2,11 @@ import Link from "next/link";
 import { ArrowRight, Clock } from "lucide-react";
 import { Container, Section, SectionHeader } from "@/components/ui/Container";
 import { Badge } from "@/components/ui/Badge";
-import { ARTICLES } from "@/lib/articles";
+import { type Article } from "@/lib/articles";
 import { cn } from "@/lib/utils";
 
-export function BlogPreview() {
-  const previews = ARTICLES.slice(0, 3);
+export function BlogPreview({ articles }: { articles: Article[] }) {
+  const previews = articles.slice(0, 3);
   return (
     <Section>
       <Container>

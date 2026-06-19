@@ -5,7 +5,7 @@ import { generateWhatsAppCSURL } from "@/lib/whatsapp";
 import { WhatsAppIcon } from "@/components/ui/WhatsAppIcon";
 import { cn } from "@/lib/utils";
 
-export function WhatsAppFloat() {
+export function WhatsAppFloat({ waNumber }: { waNumber: string }) {
   const [visible, setVisible] = useState(false);
 
   useEffect(() => {
@@ -15,7 +15,7 @@ export function WhatsAppFloat() {
 
   return (
     <a
-      href={generateWhatsAppCSURL()}
+      href={generateWhatsAppCSURL(waNumber)}
       target="_blank"
       rel="noopener noreferrer"
       aria-label="Chat dengan kami via WhatsApp"

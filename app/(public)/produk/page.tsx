@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { Container, Section } from "@/components/ui/Container";
 import { CatalogClient } from "@/components/product/CatalogClient";
-import { PRODUCTS } from "@/lib/products";
+import { getPublishedProducts } from "@/lib/products";
 
 export const metadata: Metadata = {
   title: "Katalog Produk Herbal",
@@ -10,7 +10,8 @@ export const metadata: Metadata = {
   alternates: { canonical: "/produk" },
 };
 
-export default function ProdukPage() {
+export default async function ProdukPage() {
+  const products = await getPublishedProducts();
   return (
     <Section>
       <Container>
@@ -26,7 +27,7 @@ export default function ProdukPage() {
             terbaik, proses higienis, dan kemurnian terjaga sampai ke tangan Anda.
           </p>
         </div>
-        <CatalogClient products={PRODUCTS} />
+        <CatalogClient products={products} />
       </Container>
     </Section>
   );

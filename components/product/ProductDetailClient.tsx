@@ -21,7 +21,13 @@ const TABS = [
 
 type TabId = (typeof TABS)[number]["id"];
 
-export function ProductOrderPanel({ product }: { product: Product }) {
+export function ProductOrderPanel({
+  product,
+  waNumber,
+}: {
+  product: Product;
+  waNumber: string;
+}) {
   const [variantIdx, setVariantIdx] = useState(0);
   const [quantity, setQuantity] = useState(1);
   const [copied, setCopied] = useState(false);
@@ -33,8 +39,9 @@ export function ProductOrderPanel({ product }: { product: Product }) {
     productName: product.name,
     variant: variant.label,
     quantity,
+    waNumber,
   });
-  const inquiryUrl = generateWhatsAppInquiryURL(product.name);
+  const inquiryUrl = generateWhatsAppInquiryURL(product.name, waNumber);
 
   const handleShare = async () => {
     const url = typeof window !== "undefined" ? window.location.href : "";

@@ -25,7 +25,7 @@ const steps = [
   },
 ];
 
-export function OrderSteps() {
+export function OrderSteps({ waNumber }: { waNumber: string }) {
   return (
     <Section className="relative overflow-hidden bg-brand-primary text-white">
       <svg
@@ -85,7 +85,7 @@ export function OrderSteps() {
         <div className="mt-12 flex justify-center">
           <Button asChild size="lg" variant="whatsapp">
             <a
-              href={generateWhatsAppCSURL()}
+              href={generateWhatsAppCSURL(waNumber)}
               target="_blank"
               rel="noopener noreferrer"
             >

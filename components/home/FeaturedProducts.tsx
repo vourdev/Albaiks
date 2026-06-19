@@ -2,10 +2,10 @@ import Link from "next/link";
 import { ArrowRight } from "lucide-react";
 import { Container, Section, SectionHeader } from "@/components/ui/Container";
 import { ProductCard } from "@/components/product/ProductCard";
-import { PRODUCTS } from "@/lib/products";
+import { type Product } from "@/lib/products";
 
-export function FeaturedProducts() {
-  const featured = PRODUCTS.filter((p) => p.featured).slice(0, 3);
+export function FeaturedProducts({ products }: { products: Product[] }) {
+  const featured = products.filter((p) => p.featured).slice(0, 3);
   return (
     <Section>
       <Container>

@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { Container, Section } from "@/components/ui/Container";
 import { BlogIndexClient } from "@/components/blog/BlogIndexClient";
-import { ARTICLES } from "@/lib/articles";
+import { getPublishedArticles } from "@/lib/articles";
 
 export const metadata: Metadata = {
   title: "Edukasi Herbal",
@@ -10,7 +10,8 @@ export const metadata: Metadata = {
   alternates: { canonical: "/edukasi" },
 };
 
-export default function EdukasiPage() {
+export default async function EdukasiPage() {
+  const articles = await getPublishedArticles();
   return (
     <Section>
       <Container>
@@ -26,7 +27,7 @@ export default function EdukasiPage() {
             agar mudah dipahami dan diterapkan.
           </p>
         </div>
-        <BlogIndexClient articles={ARTICLES} />
+        <BlogIndexClient articles={articles} />
       </Container>
     </Section>
   );

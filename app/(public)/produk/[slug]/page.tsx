@@ -11,18 +11,19 @@ import {
   ProductTabs,
 } from "@/components/product/ProductDetailClient";
 import {
-  PRODUCTS,
+  getPublishedProducts,
   getProductBySlug,
   getOtherProducts,
   startingPrice,
 } from "@/lib/products";
-import { SITE } from "@/lib/config";
+import { getSiteSettings } from "@/lib/settings";
 import { cn, formatRupiah } from "@/lib/utils";
 
 type Params = { slug: string };
 
 export async function generateStaticParams(): Promise<Params[]> {
-  return PRODUCTS.map((p) => ({ slug: p.slug }));
+  const products = await getPublishedProducts();
+  return products.map((p) => ({ slug: p.slug }));
 }
 
 export async function generateMetadata({
@@ -31,15 +32,16 @@ export async function generateMetadata({
   params: Promise<Params>;
 }): Promise<Metadata> {
   const { slug } = await params;
-  const product = getProductBySlug(slug);
+  const product = await getProductBySlug(slug);
   if (!product) return { title: "Produk Tidak Ditemukan" };
+  const settings = await getSiteSettings();
   const price = startingPrice(product);
   return {
     title: product.name,
     description: product.shortDescription,
     alternates: { canonical: `/produk/${product.slug}` },
     openGraph: {
-      title: `${product.name} — ${SITE.name}`,
+      title: `${product.name} — ${settings.siteName}`,
       description: product.shortDescription,
       type: "website",
     },
@@ -56,9 +58,12 @@ export default async function ProductDetailPage({
   params: Promise<Params>;
 }) {
   const { slug } = await params;
-  const product = getProductBySlug(slug);
+  const [product, settings] = await Promise.all([
+    getProductBySlug(slug),
+    getSiteSettings(),
+  ]);
   if (!product) notFound();
-  const others = getOtherProducts(slug);
+  const others = await getOtherProducts(slug);
 
   const jsonLd = {
     "@context": "https://schema.org",
@@ -67,7 +72,7 @@ export default async function ProductDetailPage({
     sku: product.sku,
     description: product.shortDescription,
     category: product.category,
-    brand: { "@type": "Brand", name: SITE.name },
+    brand: { "@type": "Brand", name: settings.siteName },
     offers: product.variants.map((v) => ({
       "@type": "Offer",
       name: v.label,
@@ -77,6 +82,13 @@ export default async function ProductDetailPage({
     })),
   };
 
+  const knownIllustrations = ["olive", "coconut", "ginger"] as const;
+  const illustrationVariant = (knownIllustrations as readonly string[]).includes(
+    product.image,
+  )
+    ? (product.image as (typeof knownIllustrations)[number])
+    : "olive";
+
   return (
     <>
       <script
@@ -85,17 +97,10 @@ export default async function ProductDetailPage({
       />
       <div className="bg-brand-cream/40 border-b border-brand-border">
         <Container className="py-4">
-          <nav
-            aria-label="Breadcrumb"
-            className="flex items-center gap-1.5 text-sm text-brand-text-secondary"
-          >
-            <Link href="/" className="hover:text-brand-primary">
-              Beranda
-            </Link>
+          <nav aria-label="Breadcrumb" className="flex items-center gap-1.5 text-sm text-brand-text-secondary">
+            <Link href="/" className="hover:text-brand-primary">Beranda</Link>
             <ChevronRight className="h-3.5 w-3.5" />
-            <Link href="/produk" className="hover:text-brand-primary">
-              Produk
-            </Link>
+            <Link href="/produk" className="hover:text-brand-primary">Produk</Link>
             <ChevronRight className="h-3.5 w-3.5" />
             <span className="text-brand-text font-medium truncate">{product.name}</span>
           </nav>
@@ -108,7 +113,7 @@ export default async function ProductDetailPage({
             <div>
               <div
                 className={cn(
-                  "relative aspect-square rounded-[12px] overflow-hidden bg-gradient-to-br border border-brand-border",
+                  "relative aspect-square rounded-xl overflow-hidden bg-gradient-to-br border border-brand-border",
                   product.accent,
                 )}
               >
@@ -119,30 +124,25 @@ export default async function ProductDetailPage({
                     </Badge>
                   ))}
                 </div>
-                <ProductIllustration
-                  variant={product.image as "olive" | "coconut" | "ginger"}
-                />
+                <ProductIllustration variant={illustrationVariant} />
               </div>
               <div className="mt-4 grid grid-cols-4 gap-3">
                 {[0, 1, 2, 3].map((i) => (
                   <div
                     key={i}
                     className={cn(
-                      "aspect-square rounded-[6px] border bg-gradient-to-br",
+                      "aspect-square rounded-md border bg-gradient-to-br",
                       product.accent,
                       i === 0 ? "border-brand-primary" : "border-brand-border opacity-70",
                     )}
                   >
-                    <ProductIllustration
-                      variant={product.image as "olive" | "coconut" | "ginger"}
-                      className="scale-90"
-                    />
+                    <ProductIllustration variant={illustrationVariant} className="scale-90" />
                   </div>
                 ))}
               </div>
             </div>
 
-            <ProductOrderPanel product={product} />
+            <ProductOrderPanel product={product} waNumber={settings.whatsappNumber} />
           </div>
         </Container>
       </Section>
@@ -172,7 +172,7 @@ export default async function ProductDetailPage({
             </Link>
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-            {others.map((p) => (
+            {others.slice(0, 3).map((p) => (
               <ProductCard key={p.slug} product={p} />
             ))}
           </div>

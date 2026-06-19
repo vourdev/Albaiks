@@ -10,7 +10,7 @@ import { generateWhatsAppCSURL } from "@/lib/whatsapp";
 import { Logo } from "./Logo";
 import { WhatsAppIcon } from "@/components/ui/WhatsAppIcon";
 
-export function Navbar() {
+export function Navbar({ waNumber }: { waNumber: string }) {
   const pathname = usePathname();
   const [open, setOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
@@ -70,7 +70,7 @@ export function Navbar() {
 
           <div className="flex items-center gap-2">
             <a
-              href={generateWhatsAppCSURL()}
+              href={generateWhatsAppCSURL(waNumber)}
               target="_blank"
               rel="noopener noreferrer"
               className="hidden sm:inline-flex items-center gap-2 rounded-[6px] bg-wa text-white px-4 h-10 text-sm font-medium hover:bg-wa-hover transition-colors"
@@ -124,7 +124,7 @@ export function Navbar() {
             );
           })}
           <a
-            href={generateWhatsAppCSURL()}
+            href={generateWhatsAppCSURL(waNumber)}
             target="_blank"
             rel="noopener noreferrer"
             className="mt-2 inline-flex items-center justify-center gap-2 rounded-[6px] bg-wa text-white px-4 h-12 text-sm font-medium"

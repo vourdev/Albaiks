@@ -6,14 +6,15 @@ import { Container, Section } from "@/components/ui/Container";
 import { Badge } from "@/components/ui/Badge";
 import { Button } from "@/components/ui/Button";
 import { ArticleCard } from "@/components/blog/ArticleCard";
-import { ARTICLES, getArticleBySlug } from "@/lib/articles";
-import { SITE } from "@/lib/config";
+import { getPublishedArticles, getArticleBySlug } from "@/lib/articles";
+import { getSiteSettings } from "@/lib/settings";
 import { cn } from "@/lib/utils";
 
 type Params = { slug: string };
 
 export async function generateStaticParams(): Promise<Params[]> {
-  return ARTICLES.map((a) => ({ slug: a.slug }));
+  const articles = await getPublishedArticles();
+  return articles.map((a) => ({ slug: a.slug }));
 }
 
 export async function generateMetadata({
@@ -22,7 +23,7 @@ export async function generateMetadata({
   params: Promise<Params>;
 }): Promise<Metadata> {
   const { slug } = await params;
-  const article = getArticleBySlug(slug);
+  const article = await getArticleBySlug(slug);
   if (!article) return { title: "Artikel Tidak Ditemukan" };
   return {
     title: article.title,
@@ -43,10 +44,14 @@ export default async function ArticleDetailPage({
   params: Promise<Params>;
 }) {
   const { slug } = await params;
-  const article = getArticleBySlug(slug);
+  const [article, settings, allArticles] = await Promise.all([
+    getArticleBySlug(slug),
+    getSiteSettings(),
+    getPublishedArticles(),
+  ]);
   if (!article) notFound();
 
-  const others = ARTICLES.filter((a) => a.slug !== slug).slice(0, 3);
+  const others = allArticles.filter((a) => a.slug !== slug).slice(0, 3);
 
   const jsonLd = {
     "@context": "https://schema.org",
@@ -54,8 +59,8 @@ export default async function ArticleDetailPage({
     headline: article.title,
     description: article.excerpt,
     datePublished: article.publishedAt,
-    author: { "@type": "Organization", name: SITE.name },
-    publisher: { "@type": "Organization", name: SITE.name },
+    author: { "@type": "Organization", name: settings.siteName },
+    publisher: { "@type": "Organization", name: settings.siteName },
   };
 
   return (

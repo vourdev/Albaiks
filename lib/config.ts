@@ -1,17 +1,4 @@
-export const SITE = {
-  name: "Albaiks Herbal",
-  tagline: "Kebaikan Alam, Kesehatan Sejati.",
-  description:
-    "Produk herbal alami pilihan dari bahan terbaik untuk kesehatan keluarga Indonesia.",
-  url: "https://albaiks.id",
-  email: "halo@albaiks.id",
-  city: "Jakarta, Indonesia",
-};
-
-export const WHATSAPP_NUMBER = "6281234567890";
-export const WHATSAPP_CS_NUMBER = "6281234567890";
-
-export const SERVICE_HOURS = "Senin–Sabtu, 08.00 – 20.00 WIB";
+export const SITE_URL = "https://albaiks.id";
 
 export const NAV_LINKS = [
   { href: "/", label: "Beranda" },
@@ -19,4 +6,12 @@ export const NAV_LINKS = [
   { href: "/edukasi", label: "Edukasi" },
   { href: "/tentang", label: "Tentang" },
   { href: "/kontak", label: "Kontak" },
+] as const;
+
+export const ADMIN_NAV_LINKS = [
+  { href: "/admin", label: "Dashboard" },
+  { href: "/admin/products", label: "Produk" },
+  { href: "/admin/articles", label: "Edukasi" },
+  { href: "/admin/testimonials", label: "Testimoni" },
+  { href: "/admin/settings", label: "Pengaturan" },
 ] as const;
