@@ -1,27 +1,29 @@
-import Link from "next/link";
-import { Container } from "@/components/ui/Container";
-import { Button } from "@/components/ui/Button";
+import type { Metadata } from "next";
+import { NotFoundView } from "@/components/NotFoundView";
+import { getSiteSettings } from "@/lib/settings";
+import { getPublishedProducts } from "@/lib/products";
 
-export default function NotFound() {
-  return (
-    <Container className="py-28 text-center">
-      <span className="inline-block text-xs font-medium uppercase tracking-[0.2em] text-brand-primary-light mb-3">
-        404
-      </span>
-      <h1 className="font-display text-5xl sm:text-6xl text-brand-primary font-light">
-        Halaman tidak ditemukan
-      </h1>
-      <p className="mt-4 text-brand-text-secondary max-w-md mx-auto">
-        Sepertinya halaman yang Anda cari sudah dipindahkan atau tidak ada.
-      </p>
-      <div className="mt-8 flex gap-3 justify-center">
-        <Button asChild variant="primary">
-          <Link href="/">Kembali ke Beranda</Link>
-        </Button>
-        <Button asChild variant="outline">
-          <Link href="/produk">Lihat Produk</Link>
-        </Button>
-      </div>
-    </Container>
-  );
+export const metadata: Metadata = {
+  title: "Halaman Tidak Ditemukan",
+  description:
+    "Halaman yang Anda cari tidak ditemukan. Kembali ke beranda atau jelajahi katalog herbal Albaiks.",
+  robots: { index: false, follow: true },
+};
+
+export default async function PublicNotFound() {
+  // The (public) layout already renders Navbar/Footer/WhatsAppFloat.
+  // We only need to render the inner view.
+  let popular: Awaited<ReturnType<typeof getPublishedProducts>> = [];
+  let waNumber = "";
+  try {
+    const [settings, products] = await Promise.all([
+      getSiteSettings(),
+      getPublishedProducts(),
+    ]);
+    waNumber = settings.whatsappCSNumber;
+    popular = products;
+  } catch {
+    /* render with empty fallbacks */
+  }
+  return <NotFoundView popularProducts={popular} waNumber={waNumber} />;
 }
