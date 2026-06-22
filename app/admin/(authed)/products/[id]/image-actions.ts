@@ -1,13 +1,11 @@
 "use server";
 
-import { writeFile, unlink, mkdir } from "node:fs/promises";
-import { join } from "node:path";
 import { randomBytes } from "node:crypto";
 import { revalidatePath } from "next/cache";
+import { put, del } from "@vercel/blob";
 import { prisma } from "@/lib/prisma";
 
-const UPLOAD_DIR = join(process.cwd(), "public", "uploads", "products");
-const PUBLIC_PREFIX = "/uploads/products/";
+const BLOB_PREFIX = "products/";
 
 const ALLOWED_MIME: Record<string, string> = {
   "image/jpeg": "jpg",
@@ -26,8 +24,11 @@ export type UploadResult = {
   error: string | null;
 };
 
-async function ensureDir() {
-  await mkdir(UPLOAD_DIR, { recursive: true });
+function ensureBlobConfigured(): string | null {
+  if (!process.env.BLOB_READ_WRITE_TOKEN) {
+    return "Vercel Blob belum dikonfigurasi. Set environment variable BLOB_READ_WRITE_TOKEN di dashboard Vercel (Storage → Blob → Connect).";
+  }
+  return null;
 }
 
 function revalidateProduct(slug: string) {
@@ -41,13 +42,19 @@ export async function uploadProductImagesAction(
   prevState: UploadResult,
   formData: FormData,
 ): Promise<UploadResult> {
+  const configError = ensureBlobConfigured();
+  if (configError) return { ok: false, uploaded: 0, error: configError };
+
   const product = await prisma.product.findUnique({
     where: { id: productId },
     select: { id: true, slug: true, images: { select: { position: true } } },
   });
-  if (!product) return { ok: false, uploaded: 0, error: "Produk tidak ditemukan." };
+  if (!product)
+    return { ok: false, uploaded: 0, error: "Produk tidak ditemukan." };
 
-  const files = formData.getAll("images").filter((f): f is File => f instanceof File && f.size > 0);
+  const files = formData
+    .getAll("images")
+    .filter((f): f is File => f instanceof File && f.size > 0);
   if (files.length === 0)
     return { ok: false, uploaded: 0, error: "Tidak ada file yang dipilih." };
   if (files.length > MAX_FILES_PER_UPLOAD)
@@ -74,8 +81,6 @@ export async function uploadProductImagesAction(
     }
   }
 
-  await ensureDir();
-
   const startPosition =
     product.images.length === 0
       ? 0
@@ -85,13 +90,19 @@ export async function uploadProductImagesAction(
   try {
     for (const [i, file] of files.entries()) {
       const ext = ALLOWED_MIME[file.type];
-      const name = `${randomBytes(12).toString("hex")}.${ext}`;
-      const bytes = Buffer.from(await file.arrayBuffer());
-      await writeFile(join(UPLOAD_DIR, name), bytes);
+      const pathname = `${BLOB_PREFIX}${randomBytes(12).toString("hex")}.${ext}`;
+
+      const blob = await put(pathname, file, {
+        access: "public",
+        contentType: file.type,
+        // Pathname is already random — no need for Blob's auto-suffix.
+        addRandomSuffix: false,
+      });
+
       await prisma.productImage.create({
         data: {
           productId,
-          url: `${PUBLIC_PREFIX}${name}`,
+          url: blob.url,
           alt: "",
           position: startPosition + i,
         },
@@ -102,7 +113,10 @@ export async function uploadProductImagesAction(
     return {
       ok: false,
       uploaded,
-      error: err instanceof Error ? err.message : "Gagal menyimpan file.",
+      error:
+        err instanceof Error
+          ? `Gagal mengunggah ke Vercel Blob: ${err.message}`
+          : "Gagal mengunggah ke Vercel Blob.",
     };
   }
 
@@ -117,15 +131,13 @@ export async function deleteProductImageAction(imageId: string) {
   });
   if (!image) return;
 
-  if (image.url.startsWith(PUBLIC_PREFIX)) {
-    const filename = image.url.slice(PUBLIC_PREFIX.length);
-    // protect against path traversal
-    if (filename && !filename.includes("/") && !filename.includes("..")) {
-      try {
-        await unlink(join(UPLOAD_DIR, filename));
-      } catch {
-        // file may already be missing — that's fine, still clean up the DB row
-      }
+  // Delete from Blob if it's a Blob URL. Legacy local paths (/uploads/...)
+  // are just orphaned rows from before the migration — silently drop the row.
+  if (/^https?:\/\//i.test(image.url)) {
+    try {
+      await del(image.url);
+    } catch {
+      // Blob may already be missing or token expired — still drop the DB row.
     }
   }
 
