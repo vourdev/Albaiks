@@ -1,17 +1,25 @@
 import Link from "next/link";
+import Image from "next/image";
 import { ArrowRight } from "lucide-react";
 import { type Product, startingPrice } from "@/lib/products";
 import { Badge } from "@/components/ui/Badge";
 import { ProductIllustration } from "@/components/ui/ProductIllustration";
-import { formatRupiah } from "@/lib/utils";
-import { cn } from "@/lib/utils";
+import { formatRupiah, cn } from "@/lib/utils";
 
 export function ProductCard({ product }: { product: Product }) {
   const price = startingPrice(product);
+  const hero = product.images[0];
+  const knownIllustrations = ["olive", "coconut", "ginger"] as const;
+  const illustrationVariant = (knownIllustrations as readonly string[]).includes(
+    product.image,
+  )
+    ? (product.image as (typeof knownIllustrations)[number])
+    : "olive";
+
   return (
     <Link
       href={`/produk/${product.slug}`}
-      className="group flex flex-col rounded-[8px] border border-brand-border bg-brand-surface overflow-hidden shadow-sm hover:shadow-md transition-all hover:-translate-y-0.5"
+      className="group flex flex-col rounded-lg border border-brand-border bg-brand-surface overflow-hidden shadow-sm hover:shadow-md transition-all hover:-translate-y-0.5"
     >
       <div
         className={cn(
@@ -20,17 +28,24 @@ export function ProductCard({ product }: { product: Product }) {
         )}
       >
         {product.labels[0] && (
-          <Badge
-            variant="accent"
-            className="absolute top-3 left-3 shadow-sm"
-          >
+          <Badge variant="accent" className="absolute top-3 left-3 z-10 shadow-sm">
             {product.labels[0]}
           </Badge>
         )}
-        <ProductIllustration
-          variant={product.image as "olive" | "coconut" | "ginger"}
-          className="transition-transform duration-500 group-hover:scale-105"
-        />
+        {hero ? (
+          <Image
+            src={hero.url}
+            alt={hero.alt || product.name}
+            fill
+            sizes="(min-width: 1024px) 25vw, (min-width: 640px) 50vw, 100vw"
+            className="object-cover transition-transform duration-500 group-hover:scale-105"
+          />
+        ) : (
+          <ProductIllustration
+            variant={illustrationVariant}
+            className="transition-transform duration-500 group-hover:scale-105"
+          />
+        )}
       </div>
       <div className="p-5 flex flex-col gap-2 flex-1">
         <span className="text-xs uppercase tracking-[0.15em] text-brand-text-muted">

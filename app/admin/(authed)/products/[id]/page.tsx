@@ -2,6 +2,7 @@ import { notFound } from "next/navigation";
 import { prisma } from "@/lib/prisma";
 import { PageHeader } from "@/components/admin/PageHeader";
 import { ProductForm } from "@/components/admin/ProductForm";
+import { ProductImageManager } from "@/components/admin/ProductImageManager";
 import { updateProductAction, deleteProductAction } from "../actions";
 
 export default async function EditProductPage({
@@ -16,7 +17,10 @@ export default async function EditProductPage({
 
   const product = await prisma.product.findUnique({
     where: { id },
-    include: { variants: { orderBy: { position: "asc" } } },
+    include: {
+      variants: { orderBy: { position: "asc" } },
+      images: { orderBy: { position: "asc" } },
+    },
   });
   if (!product) notFound();
 
@@ -41,7 +45,7 @@ export default async function EditProductPage({
       )}
       {ok === "created" && (
         <div className="mb-5 rounded-md border border-emerald-200 bg-emerald-50 px-4 py-2.5 text-sm text-emerald-800">
-          ✓ Produk berhasil dibuat.
+          ✓ Produk berhasil dibuat. Lanjutkan dengan mengunggah foto produk di bawah.
         </div>
       )}
       <ProductForm
@@ -70,6 +74,16 @@ export default async function EditProductPage({
           })),
         }}
       />
+      <div className="mt-7">
+        <ProductImageManager
+          productId={product.id}
+          images={product.images.map((i) => ({
+            id: i.id,
+            url: i.url,
+            alt: i.alt,
+          }))}
+        />
+      </div>
     </>
   );
 }

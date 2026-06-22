@@ -5,6 +5,7 @@ import { useFormStatus } from "react-dom";
 import { AlertCircle, Loader2, ShieldCheck } from "lucide-react";
 import { Button } from "@/components/ui/Button";
 import { Field, Input, FormError } from "@/components/admin/FormField";
+import { PasswordInput } from "@/components/admin/PasswordInput";
 import { setupAdminAction, type SetupFormState } from "./actions";
 
 const initial: SetupFormState = { error: null };
@@ -44,8 +45,7 @@ export function SetupForm() {
       </Field>
       <div className="grid sm:grid-cols-2 gap-3">
         <Field label="Kata Sandi" required hint="Minimal 8 karakter">
-          <Input
-            type="password"
+          <PasswordInput
             name="password"
             autoComplete="new-password"
             minLength={8}
@@ -53,8 +53,7 @@ export function SetupForm() {
           />
         </Field>
         <Field label="Konfirmasi" required>
-          <Input
-            type="password"
+          <PasswordInput
             name="confirmPassword"
             autoComplete="new-password"
             minLength={8}

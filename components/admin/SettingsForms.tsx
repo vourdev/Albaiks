@@ -5,6 +5,7 @@ import { useFormStatus } from "react-dom";
 import { Loader2, Save, KeyRound, CheckCircle2 } from "lucide-react";
 import { Button } from "@/components/ui/Button";
 import { Field, Input, Textarea, FormError } from "./FormField";
+import { PasswordInput } from "./PasswordInput";
 import {
   updateSettingsAction,
   changePasswordAction,
@@ -109,14 +110,14 @@ export function PasswordForm() {
         </div>
       )}
       <Field label="Kata Sandi Saat Ini" required>
-        <Input name="currentPassword" type="password" required autoComplete="current-password" />
+        <PasswordInput name="currentPassword" required autoComplete="current-password" />
       </Field>
       <div className="grid sm:grid-cols-2 gap-5">
         <Field label="Kata Sandi Baru" required hint="Minimal 8 karakter">
-          <Input name="newPassword" type="password" required autoComplete="new-password" minLength={8} />
+          <PasswordInput name="newPassword" required autoComplete="new-password" minLength={8} />
         </Field>
         <Field label="Konfirmasi Kata Sandi" required>
-          <Input name="confirmPassword" type="password" required autoComplete="new-password" minLength={8} />
+          <PasswordInput name="confirmPassword" required autoComplete="new-password" minLength={8} />
         </Field>
       </div>
       <div className="flex justify-end pt-2">

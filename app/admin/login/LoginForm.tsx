@@ -4,6 +4,7 @@ import { useActionState } from "react";
 import { useFormStatus } from "react-dom";
 import { AlertCircle, Loader2, LogIn } from "lucide-react";
 import { Button } from "@/components/ui/Button";
+import { PasswordInput } from "@/components/admin/PasswordInput";
 import { loginAction, type LoginState } from "./actions";
 
 const initial: LoginState = { error: null };
@@ -39,17 +40,23 @@ export function LoginForm({ next }: { next: string }) {
         />
       </div>
       <div>
-        <label htmlFor="password" className="block text-sm font-medium text-brand-text mb-1.5">
-          Kata Sandi
-        </label>
-        <input
+        <div className="flex items-center justify-between mb-1.5">
+          <label htmlFor="password" className="block text-sm font-medium text-brand-text">
+            Kata Sandi
+          </label>
+          <span
+            className="text-xs text-brand-text-muted"
+            title="Reset via terminal: npm run admin:reset"
+          >
+            Lupa? Reset via terminal
+          </span>
+        </div>
+        <PasswordInput
           id="password"
           name="password"
-          type="password"
           required
           autoComplete="current-password"
           placeholder="••••••••"
-          className="w-full h-11 rounded-md border border-brand-border bg-white px-3 text-sm focus:outline-none focus:ring-2 focus:ring-brand-secondary"
         />
       </div>
       {state.error && (

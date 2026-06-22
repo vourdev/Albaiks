@@ -6,6 +6,7 @@ import { Container, Section } from "@/components/ui/Container";
 import { Badge } from "@/components/ui/Badge";
 import { ProductIllustration } from "@/components/ui/ProductIllustration";
 import { ProductCard } from "@/components/product/ProductCard";
+import { ProductGallery } from "@/components/product/ProductGallery";
 import {
   ProductOrderPanel,
   ProductTabs,
@@ -111,35 +112,51 @@ export default async function ProductDetailPage({
         <Container>
           <div className="grid lg:grid-cols-2 gap-10 lg:gap-16">
             <div>
-              <div
-                className={cn(
-                  "relative aspect-square rounded-xl overflow-hidden bg-gradient-to-br border border-brand-border",
-                  product.accent,
-                )}
-              >
-                <div className="absolute top-4 left-4 flex flex-wrap gap-2">
-                  {product.labels.map((l) => (
-                    <Badge key={l} variant="accent" className="shadow-sm">
-                      {l}
-                    </Badge>
-                  ))}
-                </div>
-                <ProductIllustration variant={illustrationVariant} />
-              </div>
-              <div className="mt-4 grid grid-cols-4 gap-3">
-                {[0, 1, 2, 3].map((i) => (
+              {product.images.length > 0 ? (
+                <ProductGallery
+                  images={product.images}
+                  labels={product.labels}
+                  accent={product.accent}
+                  productName={product.name}
+                />
+              ) : (
+                <>
                   <div
-                    key={i}
                     className={cn(
-                      "aspect-square rounded-md border bg-gradient-to-br",
+                      "relative aspect-square rounded-xl overflow-hidden bg-gradient-to-br border border-brand-border",
                       product.accent,
-                      i === 0 ? "border-brand-primary" : "border-brand-border opacity-70",
                     )}
                   >
-                    <ProductIllustration variant={illustrationVariant} className="scale-90" />
+                    <div className="absolute top-4 left-4 flex flex-wrap gap-2">
+                      {product.labels.map((l) => (
+                        <Badge key={l} variant="accent" className="shadow-sm">
+                          {l}
+                        </Badge>
+                      ))}
+                    </div>
+                    <ProductIllustration variant={illustrationVariant} />
                   </div>
-                ))}
-              </div>
+                  <div className="mt-4 grid grid-cols-4 gap-3">
+                    {[0, 1, 2, 3].map((i) => (
+                      <div
+                        key={i}
+                        className={cn(
+                          "aspect-square rounded-md border bg-gradient-to-br",
+                          product.accent,
+                          i === 0
+                            ? "border-brand-primary"
+                            : "border-brand-border opacity-70",
+                        )}
+                      >
+                        <ProductIllustration
+                          variant={illustrationVariant}
+                          className="scale-90"
+                        />
+                      </div>
+                    ))}
+                  </div>
+                </>
+              )}
             </div>
 
             <ProductOrderPanel product={product} waNumber={settings.whatsappNumber} />
